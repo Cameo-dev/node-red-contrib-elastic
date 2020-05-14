@@ -1,0 +1,120 @@
+<script type="text/x-red" data-template-name="elasticsearch-write">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+      <label for="node-input-client"><i class="fa fa-cog"></i> Client</label>
+      <input type="text" id="node-input-client">
+    </div>
+    <div class="form-row">
+        <label for="node-input-index"><i class="fa fa-tag"></i> Index</label>
+        <input type="text" id="node-input-index" placeholder="my-index-202004">
+    </div>
+	<div class="form-row">
+        <label for="node-input-body"> Body</label>
+        <input type="text" id="node-input-body" placeholder="">
+    </div>
+    <div class="node-input-append-container-row">
+        <ol id="node-input-append-container"></ol>
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('elasticsearch-write', {
+        category: 'network',
+        defaults: {
+            name: {value: ''},
+            client: {type: 'elasticsearch-client', required: true},
+            index: {value: ''},
+            body: {value: {}, validate: (val) => {
+                try{
+                    JSON.parse(val);
+                    return true;
+                } catch(e) {
+                    return false;
+                }
+            }},
+            append: {value: []}
+        },
+        color: "#0080d5",
+        icon: "elasticsearch.png",
+        label: function () {
+            return (this.name ? this.name : 'Elastic write');
+        },
+        inputs: 1,
+        outputs: 1,
+        oneditprepare: function () {
+            const listContainer = $('#node-input-append-container');
+
+            listContainer
+                .css('min-height', '250px')
+                .css('min-width', '300px')
+                .editableList({
+                    header: $('<div>').append('<p>Append</p>'),
+                    addItem(container, i, data) {
+                        container.css({
+                            overflow: 'hidden',
+                            whiteSpace: 'nowrap'
+                        });
+
+                        // append option item
+                        let baseRow = $('<div/>', {
+                            class: 'input-append-row'
+                        }).appendTo(container);
+
+                        /*let appendType = $('<input type="hidden" class="append-type">')
+                            .appendTo(baseRow);*/
+
+                        // Append field name
+                        let fieldInput = $('<input/>', {
+                                class: 'node-input-field-name',
+                                required: 'required',
+                                type: 'text'
+                            }).appendTo(baseRow)
+                        // Append value
+                        let appendInput = $('<input/>', {
+                                class: 'node-input-append-value',
+                                required: 'required',
+                                type: 'text'
+                            }).appendTo(baseRow)
+                            .typedInput({
+                                default: 'str',
+                                types: ['msg', 'str', 'env'],
+                                //typeField: '.append-type'
+                            })
+                            .width('190px');
+
+                        if (Object.keys(data).length) {
+                            fieldInput.val(data.field);
+                            appendInput.typedInput('value', data.value);
+                            appendInput.typedInput('type', data.type);
+                        }
+                    },
+                    removable: true,
+                    sortable: true
+                });
+
+            this.append.forEach(req => listContainer.editableList('addItem', req));
+        },
+        oneditsave: function () {
+            try{throw 'r'} catch(e) {}
+            const appendItems = $('#node-input-append-container').editableList('items');
+            const append = [];
+
+            appendItems.each(function () {
+                const field = $(this).find('.node-input-field-name').val();
+                const valueInput = $(this).find('.node-input-append-value');
+                const value = valueInput.typedInput('value');
+                const type = valueInput.typedInput('type');
+                append.push({
+                    field,
+                    value,
+                    type
+                });
+            });
+
+            this.append = append;
+        }
+    });
+</script>

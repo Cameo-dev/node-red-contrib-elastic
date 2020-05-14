@@ -1,0 +1,35 @@
+<script type="text/x-red" data-template-name="elasticsearch-client">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-cloudId"><i class="fa fa-tag"></i> Elastic Cloud ID</label>
+        <input type="text" id="node-config-input-cloudId" placeholder="Server URL">
+    </div>
+	<div class="form-row">
+        <label for="node-config-input-username"> Username</label>
+        <input type="text" id="node-config-input-username" placeholder="elastic">
+    </div>
+	<div class="form-row">
+        <label for="node-config-input-password"> Password</label>
+        <input type="password" id="node-config-input-password">
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('elasticsearch-client', {
+        category: 'config',
+        defaults: {
+            name: {value: ''},
+            cloudId: {value: '', required: true},
+            username: {value: 'elastic', required: true},
+            password: {value: '', required: true}
+        },
+        color: "#0080d5",
+        icon: "elasticsearch.png",
+        label: function () {
+            return (this.name ? this.name : this.id.split(':').pop());
+        }
+    });
+</script>

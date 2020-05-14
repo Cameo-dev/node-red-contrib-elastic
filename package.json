@@ -1,0 +1,29 @@
+{
+  "name": "node-red-contrib-elastic",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "node-red": {
+    "nodes": {
+    "elasticsearch-client": "client.js",
+    "elasticsearch-write": "write.js"
+    }
+  },
+  "author": "",
+  "keywords": [
+    "node-red",
+    "elasticsearch"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "@elastic/elasticsearch": "^7.6.1"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.2"
+  }
+}
