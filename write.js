@@ -20,13 +20,21 @@ module.exports = function (RED) {
         return memo;
       }, {});
       const index = msg.payload.index || config.index;
-      const body = Object.assign({}, appendedFields, JSON.parse(msg.payload.body || config.body));
+      let data;
+      try {
+        data = msg.payload.body || JSON.parse(config.body);
+      } catch (e) {
+        done(new Error('Invalid body in settings'));
+      }
+      if (!data) done(new Error('You must provide a body'));
+      const body = Object.assign({}, appendedFields, { timestamp: Date.now() }, data);
 
       try {
         await this.client.index({
           index,
           body,
         });
+        done();
       } catch (e) {
         if (!done) this.error(e);
         else done(e);

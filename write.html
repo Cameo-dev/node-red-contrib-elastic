@@ -28,6 +28,7 @@
             client: {type: 'elasticsearch-client', required: true},
             index: {value: ''},
             body: {value: {}, validate: (val) => {
+                if(!val) return true;
                 try{
                     JSON.parse(val);
                     return true;
