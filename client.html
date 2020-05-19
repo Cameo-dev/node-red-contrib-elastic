@@ -7,12 +7,12 @@
         <label for="node-config-input-cloudId"><i class="fa fa-tag"></i> Elastic Cloud ID</label>
         <input type="text" id="node-config-input-cloudId" placeholder="Server URL">
     </div>
-	<div class="form-row">
-        <label for="node-config-input-username"> Username</label>
+  <div class="form-row">
+				<label for="node-config-input-username"><i class="fa fa-user"> Username</label>
         <input type="text" id="node-config-input-username" placeholder="elastic">
     </div>
-	<div class="form-row">
-        <label for="node-config-input-password"> Password</label>
+  <div class="form-row">
+				<label for="node-config-input-password"><i class="fa fa-lock"> Password</label>
         <input type="password" id="node-config-input-password">
     </div>
 </script>
@@ -24,7 +24,9 @@
             name: {value: ''},
             cloudId: {value: '', required: true},
             username: {value: 'elastic', required: true},
-            password: {value: '', required: true}
+        },
+        credentials: {
+            password: {type:'password'}
         },
         color: "#0080d5",
         icon: "elasticsearch.png",

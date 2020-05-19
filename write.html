@@ -11,7 +11,7 @@
         <label for="node-input-index"><i class="fa fa-tag"></i> Index</label>
         <input type="text" id="node-input-index" placeholder="my-index-202004">
     </div>
-	<div class="form-row">
+  <div class="form-row">
         <label for="node-input-body"> Body</label>
         <input type="text" id="node-input-body" placeholder="">
     </div>
@@ -64,9 +64,6 @@
                             class: 'input-append-row'
                         }).appendTo(container);
 
-                        /*let appendType = $('<input type="hidden" class="append-type">')
-                            .appendTo(baseRow);*/
-
                         // Append field name
                         let fieldInput = $('<input/>', {
                                 class: 'node-input-field-name',
@@ -81,8 +78,7 @@
                             }).appendTo(baseRow)
                             .typedInput({
                                 default: 'str',
-                                types: ['msg', 'str', 'env'],
-                                //typeField: '.append-type'
+                                types: ['msg', 'str', 'env', 'jsonata'],
                             })
                             .width('190px');
 
@@ -99,7 +95,6 @@
             this.append.forEach(req => listContainer.editableList('addItem', req));
         },
         oneditsave: function () {
-            try{throw 'r'} catch(e) {}
             const appendItems = $('#node-input-append-container').editableList('items');
             const append = [];
 
@@ -119,3 +114,10 @@
         }
     });
 </script>
+
+<style type="text/css" media="screen">
+.node-input-append-container-row .node-input-field-name {
+  width: 160px;
+  margin-right: 5px;
+}
+</style>

@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint"
   },
   "node-red": {
     "nodes": {
-    "elasticsearch-client": "client.js",
-    "elasticsearch-write": "write.js"
+      "elasticsearch-client": "client.js",
+      "elasticsearch-write": "write.js"
     }
   },
   "author": "",
