@@ -1,7 +1,7 @@
 <script type="text/x-red" data-template-name="elasticsearch-write">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-config-input-name" placeholder="Name">
+        <input type="text" id="node-input-name" placeholder="Name">
     </div>
     <div class="form-row">
       <label for="node-input-client"><i class="fa fa-cog"></i> Client</label>
@@ -11,113 +11,158 @@
         <label for="node-input-index"><i class="fa fa-tag"></i> Index</label>
         <input type="text" id="node-input-index" placeholder="my-index-202004">
     </div>
-  <div class="form-row">
-        <label for="node-input-body"> Body</label>
-        <input type="text" id="node-input-body" placeholder="">
+    <div class="form-row">
+        <label for="node-input-body"><i class="fa">{}</i> Body</label>
+        <input type="hidden" id="node-input-body">
+        <div style="position: absolute; right:20px;display:inline-block; text-align: right; font-size: 0.8em;">
+            <button id="node-body-expand-editor" class="red-ui-button red-ui-button-small"><i class="fa fa-expand"></i></button>
+        </div>
     </div>
+    <div class="form-row node-text-editor-row">
+      <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-body-editor" ></div>
+  </div>
     <div class="node-input-append-container-row">
         <ol id="node-input-append-container"></ol>
     </div>
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('elasticsearch-write', {
-        category: 'network',
-        defaults: {
-            name: {value: ''},
-            client: {type: 'elasticsearch-client', required: true},
-            index: {value: ''},
-            body: {value: {}, validate: (val) => {
-                if(!val) return true;
-                try{
-                    JSON.parse(val);
-                    return true;
-                } catch(e) {
-                    return false;
-                }
-            }},
-            append: {value: []}
+  RED.nodes.registerType('elasticsearch-write', {
+    category: 'network',
+    defaults: {
+      name: {value: ''},
+      client: {type: 'elasticsearch-client', required: true},
+      index: {value: ''},
+      body: {value: {}, validate: (val) => {
+          if(!val) return true;
+          try{
+              JSON.parse(val);
+              return true;
+          } catch(e) {
+              return false;
+          }
+      }},
+      append: {value: []}
+    },
+    color: "#0080d5",
+    icon: "elasticsearch.png",
+    label: function () {
+        return (this.name ? this.name : 'Elastic write');
+    },
+    inputs: 1,
+    outputs: 1,
+    oneditprepare: function () {
+      this.editor = RED.editor.createEditor({
+        id: 'node-input-body-editor',
+        mode: 'ace/mode/json',
+        value: $("#node-input-body").val()
+      });
+      $("#node-body-expand-editor").on("click", (e) => {
+        e.preventDefault();
+        RED.editor.editText({
+          mode: 'json',
+          value: this.editor.getValue(),
+          width: "Infinity",
+          cursor: this.editor.getCursorPosition(),
+          complete: (v,cursor) => {
+            this.editor.setValue(v, -1);
+            this.editor.gotoLine(cursor.row+1,cursor.column,false);
+            setTimeout(() => {
+              this.editor.focus();
+            }, 300);
+          }
+        });
+      });
+      const listContainer = $('#node-input-append-container');
+
+      listContainer
+      .css('min-height', '250px')
+      .css('min-width', '300px')
+      .editableList({
+        header: $('<div>').append('<p>Append</p>'),
+        addItem(container, i, data) {
+          container.css({
+            overflow: 'hidden',
+            whiteSpace: 'nowrap'
+          });
+
+          // append option item
+          let baseRow = $('<div/>', {
+            class: 'input-append-row'
+          }).appendTo(container);
+
+          // Append field name
+          let fieldInput = $('<input/>', {
+            class: 'node-input-field-name',
+            required: 'required',
+            type: 'text'
+          }).appendTo(baseRow)
+          // Append value
+          let appendInput = $('<input/>', {
+            class: 'node-input-append-value',
+            required: 'required',
+            type: 'text'
+          }).appendTo(baseRow)
+          .typedInput({
+            default: 'str',
+            types: ['msg', 'str', 'env', 'jsonata'],
+          })
+          .width('190px');
+
+          if (Object.keys(data).length) {
+            fieldInput.val(data.field);
+            appendInput.typedInput('value', data.value);
+            appendInput.typedInput('type', data.type);
+          }
         },
-        color: "#0080d5",
-        icon: "elasticsearch.png",
-        label: function () {
-            return (this.name ? this.name : 'Elastic write');
-        },
-        inputs: 1,
-        outputs: 1,
-        oneditprepare: function () {
-            const listContainer = $('#node-input-append-container');
+        removable: true,
+        sortable: true
+      });
 
-            listContainer
-                .css('min-height', '250px')
-                .css('min-width', '300px')
-                .editableList({
-                    header: $('<div>').append('<p>Append</p>'),
-                    addItem(container, i, data) {
-                        container.css({
-                            overflow: 'hidden',
-                            whiteSpace: 'nowrap'
-                        });
+      this.append.forEach(req => listContainer.editableList('addItem', req));
+    },
+    oneditsave: function () {
+      $("#node-input-body").val(this.editor.getValue());
+      this.editor.destroy();
+      delete this.editor;
+      const appendItems = $('#node-input-append-container').editableList('items');
+      const append = [];
 
-                        // append option item
-                        let baseRow = $('<div/>', {
-                            class: 'input-append-row'
-                        }).appendTo(container);
+      appendItems.each(function () {
+        const field = $(this).find('.node-input-field-name').val();
+        const valueInput = $(this).find('.node-input-append-value');
+        const value = valueInput.typedInput('value');
+        const type = valueInput.typedInput('type');
+        append.push({
+            field,
+            value,
+            type
+        });
+      });
 
-                        // Append field name
-                        let fieldInput = $('<input/>', {
-                                class: 'node-input-field-name',
-                                required: 'required',
-                                type: 'text'
-                            }).appendTo(baseRow)
-                        // Append value
-                        let appendInput = $('<input/>', {
-                                class: 'node-input-append-value',
-                                required: 'required',
-                                type: 'text'
-                            }).appendTo(baseRow)
-                            .typedInput({
-                                default: 'str',
-                                types: ['msg', 'str', 'env', 'jsonata'],
-                            })
-                            .width('190px');
-
-                        if (Object.keys(data).length) {
-                            fieldInput.val(data.field);
-                            appendInput.typedInput('value', data.value);
-                            appendInput.typedInput('type', data.type);
-                        }
-                    },
-                    removable: true,
-                    sortable: true
-                });
-
-            this.append.forEach(req => listContainer.editableList('addItem', req));
-        },
-        oneditsave: function () {
-            const appendItems = $('#node-input-append-container').editableList('items');
-            const append = [];
-
-            appendItems.each(function () {
-                const field = $(this).find('.node-input-field-name').val();
-                const valueInput = $(this).find('.node-input-append-value');
-                const value = valueInput.typedInput('value');
-                const type = valueInput.typedInput('type');
-                append.push({
-                    field,
-                    value,
-                    type
-                });
-            });
-
-            this.append = append;
+      this.append = append;
+    },
+    oneditcancel: function() {
+      this.editor.destroy();
+      delete this.editor;
+    },
+    oneditresize: function(size) {
+      var rows = $("#dialog-form>div:not(.node-text-editor-row)");
+      var height = $("#dialog-form").height();
+      for (var i=0; i<rows.length; i++) {
+        height -= $(rows[i]).outerHeight(true);
         }
-    });
+        var editorRow = $("#dialog-form>div.node-text-editor-row");
+      height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+      $(".node-text-editor").css("height",height+"px");
+      this.editor.resize();
+    }
+  });
 </script>
 
 <style type="text/css" media="screen">
-.node-input-append-container-row .node-input-field-name {
-  width: 160px;
-  margin-right: 5px;
-}
+  .node-input-append-container-row .node-input-field-name {
+    width: 160px;
+    margin-right: 5px;
+  }
 </style>
