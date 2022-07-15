@@ -5,7 +5,11 @@
     </div>
     <div class="form-row">
         <label for="node-config-input-cloudId"><i class="fa fa-id-badge"></i> Elastic Cloud ID</label>
-        <input type="text" id="node-config-input-cloudId" placeholder="Server URL">
+        <input type="text" id="node-config-input-cloudId">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-node"><i class="fa fa-globe"></i> Node URL</label>
+        <input type="text" id="node-config-input-node" placeholder="Server URL">
     </div>
     <div class="form-row">
         <label for="node-config-input-username"><i class="fa fa-user"></i> Username</label>
@@ -22,7 +26,8 @@
         category: 'config',
         defaults: {
             name: {value: ''},
-            cloudId: {value: '', required: true},
+            cloudId: {value: '', required: false},
+						node: {value: '', required: true},
             username: {value: 'elastic', required: true},
         },
         credentials: {

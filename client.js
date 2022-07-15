@@ -4,17 +4,18 @@ module.exports = function client(RED) {
   function serverClientNode(config) {
     RED.nodes.createNode(this, config);
 
-    if (!config.cloudId) throw new Error('You must provide a cloud ID');
+    if (!config.cloudId && !config.node) throw new Error('You must provide a cloud ID or a node URL');
     if (!config.username) throw new Error('You must provide a username');
     if (!this.credentials.password) throw new Error('You must provide a password');
 
-    const { cloudId: id, username } = config;
+    const { cloudId: id, username, node } = config;
     const { password } = this.credentials;
 
     this.client = new Client({
-      cloud: {
+      cloud: id ? {
         id,
-      },
+      } : undefined,
+      node,
       auth: {
         username,
         password,

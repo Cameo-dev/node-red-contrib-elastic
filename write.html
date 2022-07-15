@@ -10,17 +10,13 @@
     <div class="form-row">
         <label for="node-input-index"><i class="fa fa-tag"></i> Index</label>
         <input type="text" id="node-input-index" placeholder="my-index-202004">
+        <input type="hidden" id="node-input-indexType">
     </div>
     <div class="form-row">
         <label for="node-input-body"><i class="fa">{}</i> Body</label>
-        <input type="hidden" id="node-input-body">
-        <div style="position: absolute; right:20px;display:inline-block; text-align: right; font-size: 0.8em;">
-            <button id="node-body-expand-editor" class="red-ui-button red-ui-button-small"><i class="fa fa-expand"></i></button>
-        </div>
+				<input type="text" id="node-input-body">
+        <input type="hidden" id="node-input-bodyType">
     </div>
-    <div class="form-row node-text-editor-row">
-      <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-body-editor" ></div>
-  </div>
     <div class="node-input-append-container-row">
         <ol id="node-input-append-container"></ol>
     </div>
@@ -33,15 +29,9 @@
       name: {value: ''},
       client: {type: 'elasticsearch-client', required: true},
       index: {value: ''},
-      body: {value: {}, validate: (val) => {
-          if(!val) return true;
-          try{
-              JSON.parse(val);
-              return true;
-          } catch(e) {
-              return false;
-          }
-      }},
+      indexType: {value: ''},
+      body: {value: {}},
+      bodyType: {value: ''},
       append: {value: []}
     },
     color: "#0080d5",
@@ -52,27 +42,6 @@
     inputs: 1,
     outputs: 1,
     oneditprepare: function () {
-      this.editor = RED.editor.createEditor({
-        id: 'node-input-body-editor',
-        mode: 'ace/mode/json',
-        value: $("#node-input-body").val()
-      });
-      $("#node-body-expand-editor").on("click", (e) => {
-        e.preventDefault();
-        RED.editor.editText({
-          mode: 'json',
-          value: this.editor.getValue(),
-          width: "Infinity",
-          cursor: this.editor.getCursorPosition(),
-          complete: (v,cursor) => {
-            this.editor.setValue(v, -1);
-            this.editor.gotoLine(cursor.row+1,cursor.column,false);
-            setTimeout(() => {
-              this.editor.focus();
-            }, 300);
-          }
-        });
-      });
       const listContainer = $('#node-input-append-container');
 
       listContainer
@@ -120,11 +89,20 @@
       });
 
       this.append.forEach(req => listContainer.editableList('addItem', req));
+
+			$("#node-input-index").typedInput({
+				default: "str",
+				types: ["str", "env", "jsonata"],
+				typeField: $("#node-input-indexType")
+			});
+
+			$("#node-input-body").typedInput({
+				default: "json",
+				types: ["json", "jsonata"],
+				typeField: $("#node-input-bodyType")
+			});
     },
     oneditsave: function () {
-      $("#node-input-body").val(this.editor.getValue());
-      this.editor.destroy();
-      delete this.editor;
       const appendItems = $('#node-input-append-container').editableList('items');
       const append = [];
 
@@ -141,21 +119,6 @@
       });
 
       this.append = append;
-    },
-    oneditcancel: function() {
-      this.editor.destroy();
-      delete this.editor;
-    },
-    oneditresize: function(size) {
-      var rows = $("#dialog-form>div:not(.node-text-editor-row)");
-      var height = $("#dialog-form").height();
-      for (var i=0; i<rows.length; i++) {
-        height -= $(rows[i]).outerHeight(true);
-        }
-        var editorRow = $("#dialog-form>div.node-text-editor-row");
-      height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
-      $(".node-text-editor").css("height",height+"px");
-      this.editor.resize();
     }
   });
 </script>
