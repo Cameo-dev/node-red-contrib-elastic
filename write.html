@@ -8,11 +8,6 @@
       <input type="text" id="node-input-client">
     </div>
     <div class="form-row">
-        <label for="node-input-index"><i class="fa fa-tag"></i> Index</label>
-        <input type="text" id="node-input-index" placeholder="my-index-202004">
-        <input type="hidden" id="node-input-indexType">
-    </div>
-    <div class="form-row">
         <label for="node-input-body"><i class="fa">{}</i> Body</label>
 				<input type="text" id="node-input-body">
         <input type="hidden" id="node-input-bodyType">
@@ -28,9 +23,7 @@
     defaults: {
       name: {value: ''},
       client: {type: 'elasticsearch-client', required: true},
-      index: {value: ''},
-      indexType: {value: ''},
-      body: {value: {}},
+      body: {value: ''},
       bodyType: {value: ''},
       append: {value: []}
     },
@@ -89,12 +82,6 @@
       });
 
       this.append.forEach(req => listContainer.editableList('addItem', req));
-
-			$("#node-input-index").typedInput({
-				default: "str",
-				types: ["str", "env", "jsonata"],
-				typeField: $("#node-input-indexType")
-			});
 
 			$("#node-input-body").typedInput({
 				default: "json",

@@ -21,6 +21,8 @@ module.exports = function client(RED) {
         password,
       },
     });
+
+    this.index = RED.util.evaluateNodeProperty(config.index, config.indexType, this);
   }
 
   RED.nodes.registerType('elasticsearch-client', serverClientNode, {
