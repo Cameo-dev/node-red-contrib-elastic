@@ -13,7 +13,7 @@ module.exports = function write(RED) {
         memo[a.field] = RED.util.evaluateNodeProperty(a.value, a.type, this, msg);
         return memo;
       }, Promise.resolve({}));
-      const index = msg.payload.index || clientNode.index;
+      const { index } = clientNode;
       let data;
       try {
         data = RED.util.evaluateNodeProperty(config.body, config.bodyType, this, msg) || msg.payload;
