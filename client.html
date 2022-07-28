@@ -24,6 +24,14 @@
         <label for="node-config-input-password"><i class="fa fa-lock"></i> Password</label>
         <input type="password" id="node-config-input-password">
     </div>
+    <div class="form-row">
+        <label for="node-config-input-caFingerprint"><i class="fa fa-fingerprint"></i> CA Fingerprint</label>
+        <input type="text" id="node-config-input-caFingerprint">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-rejectUnauthorized"><i class="fa fa-shield-check"></i> Reject Unauthorized</label>
+        <input type="checkbox" id="node-config-input-rejectUnauthorized">
+    </div>
 </script>
 
 <script type="text/javascript">
@@ -36,6 +44,8 @@
 			username: {value: 'elastic', required: true},
 			index: {value: '', required: true},
 			indexType: {value: ''},
+      caFingerprint: {value: ''},
+      rejectUnauthorized: {value: true}
 		},
 		credentials: {
 			password: {type:'password'}

@@ -8,7 +8,9 @@ module.exports = function client(RED) {
     if (!config.username) throw new Error('You must provide a username');
     if (!this.credentials.password) throw new Error('You must provide a password');
 
-    const { cloudId: id, username, node } = config;
+    const {
+      cloudId: id, username, node, caFingerprint, rejectUnauthorized,
+    } = config;
     const { password } = this.credentials;
 
     this.client = new Client({
@@ -19,6 +21,11 @@ module.exports = function client(RED) {
       auth: {
         username,
         password,
+      },
+      // Need a fix from NodeRED to allow empty string in env vars
+      caFingerprint: caFingerprint !== '' && caFingerprint !== 'undefined' ? caFingerprint : undefined,
+      tls: {
+        rejectUnauthorized,
       },
     });
 
